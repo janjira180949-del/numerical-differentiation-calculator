@@ -1,58 +1,137 @@
-# Deployment preparation — strict $0 authorization
+# Render deployment — verified Free services
 
-Status: **not published and not deployed**. No remote repository or cloud service has been created by this deployment task. No public website URL is verified. No payment, trial, subscription, credit purchase, payment-method entry, or billing activation is authorized.
+Status on **18 October 2026 (Asia/Bangkok): both services live and publicly tested**. Deployment was explicitly authorized with a maximum budget of **$0 USD / 0 THB**. The existing Java algorithms, frontend UI, application features, Dockerfile, and `render.yaml` were preserved. This deployment changed infrastructure configuration and these deployment records only.
 
-## Repository and public URL
+## Verified public URLs and resources
 
-- Intended GitHub owner: `Janjira6804062617155` (confirmed through the connected GitHub account).
-- Requested repository name: `numerical-differentiation-calculator`.
-- GitHub repository URL: **not created/verified**. An accessible-repository search returned no matching repository; an authenticated exact-name check must precede creation.
-- Public website/backend URLs: **not assigned/verified**.
-- Public repository publication and the first public website deployment both require the user's explicit approval under the deployment brief. Local preparation does not constitute that approval.
+| Resource | Verified URL / identifier | Status |
+| --- | --- | --- |
+| Website | https://numerical-differentiation-web.onrender.com | HTTP 200; desktop/mobile tests passed |
+| Java backend | https://numerical-differentiation-java.onrender.com | Live; API checks passed |
+| Java health | https://numerical-differentiation-java.onrender.com/api/health | HTTP 200; `status: UP` |
+| Frontend health proxy | https://numerical-differentiation-web.onrender.com/api/health | HTTP 200; reaches Java |
+| GitHub repository | https://github.com/janjira180949-del/numerical-differentiation-calculator | Existing `main` used |
+| Backend service | `srv-dba682nbtjjs73dv24rg` | Docker; `plan: free`; Singapore |
+| Frontend service | `srv-dba6973bc2fs73a7gj60` | Node; `plan: free`; Singapore |
 
-## Hosting assessment
+Workspace: **My Workspace**, `tea-dba5u3rbc2fs73a6butg`, explicitly confirmed by the user. Both services deploy application commit `a272890c994257e03dabef03857614c7311f16db`. Subsequent documentation-only commits do not require redeployment.
 
-The candidate is **two explicitly Free Render web services**: a Docker-based Java 21 backend and a native Node SvelteKit frontend. Neither is a trial service. The blueprint declares `plan: free` for both and disables automatic deployment. No database, disk, private service, custom domain purchase, or paid add-on is required.
+- [Backend dashboard](https://dashboard.render.com/web/srv-dba682nbtjjs73dv24rg)
+- [Frontend dashboard](https://dashboard.render.com/web/srv-dba6973bc2fs73a7gj60)
+- Successful backend deployment: `dep-dba683fbtjjs73dv2750`.
+- Successful frontend deployment with production environment: `dep-dba699bbc5jc73c7pkr0`.
 
-Before creating services, verify that the selected Render workspace is on a no-cost workspace plan, **has no payment method**, and the creation summary shows $0 for both services. Stop if Render requests a payment method, paid verification, upgrade, trial, credits, or any billable service. Existing payment methods must not be changed without authorization. If the billing state cannot be verified, do not create resources.
+The backend was deployed and its public health verified **before** the frontend was created. The frontend's initial deploy was followed by the environment-update deploy that applied its actual assigned `ORIGIN`. Both final deploys reached Render's `live` state. The final resource listing contained exactly these two web services.
 
-Render explicitly states that even Free instances can incur bandwidth/build overages when a payment method is attached. Without one, usage-limit exhaustion suspends services or disables builds instead. Therefore `plan: free` alone is not a guarantee of zero possible charges. Current official terms must be rechecked at execution time. [Free instances](https://render.com/docs/free), [billing FAQ](https://render.com/docs/faq), [pricing](https://render.com/pricing).
+## Billing verification and confirmed costs
 
-Render provides 750 shared Free instance hours per workspace per calendar month. Two running services consume that pool together; continuous operation of both for a whole month is not covered. Idle services sleep after 15 minutes and cold starts can take around a minute. This is appropriate for a university demonstration with interruptions, not guaranteed always-on hosting. Free backends cannot receive private-network requests, so the frontend must call the backend's assigned public HTTPS URL. [Free instance limitations](https://render.com/docs/free).
+Before service creation, the user supplied actual Render Billing dashboard screenshots showing:
 
-Railway was evaluated but not selected: its onboarding includes trial credits and its Free resource allowance is limited. No trial or account/resource creation was initiated. [Railway pricing](https://railway.com/pricing).
+- Current workspace plan: **Hobby**.
+- Payment Method: **No card on file**.
+- Free Instance Hours: **0 / 750**; Included Bandwidth: **0 MB / 5 GB**; Included Pipeline Minutes: **0 / 500**.
+- Existing Services: **0**; Unbilled Charges: **No pending charges**; Invoice History: **No past invoices**; Credit Balance: **$0.00**.
 
-Sites hosting uses a Workers runtime and does not run this Spring Boot Java process. Replacing the backend or migrating the frontend framework is outside this task, so the existing Java/Node architecture is preserved.
+These usage figures describe the pre-deployment screenshots, not post-deployment usage. The connector does not expose live billing/payment-method details.
 
-## Prepared configuration
+Before each creation, the requested compute plan was explicitly set to **`free`**, verified against current [Render compute-plan documentation](https://render.com/docs/compute-plans) and [Free instance documentation](https://render.com/docs/free). Each creation response and subsequent service inspection confirmed `serviceDetails.plan: free`.
 
-| Service | Configuration |
+**Recurring compute cost: backend $0/month + frontend $0/month = $0/month (0 THB).** No payment information was entered, billing was not activated, and no paid plan, trial, database, disk, worker, custom-domain purchase, or other resource was created. Automatic deployment is off on both services to conserve included build usage.
+
+Without a payment method, exhausting included bandwidth suspends Free services; exhausting included pipeline minutes disables new builds rather than purchasing extra usage. Never attach a card, upgrade, activate a trial, or purchase usage to keep this deployment running. [Render Free usage policy](https://render.com/docs/free).
+
+## Existing configuration and applied settings
+
+The services were created individually through the Render connector, using the existing `render.yaml` settings, so the backend could be verified first. No Blueprint was applied and the services are not currently Blueprint-managed. Do not apply a new Blueprint blindly over these existing services.
+
+| Setting | Backend | Frontend |
+| --- | --- | --- |
+| Compute plan | `free` | `free` |
+| Region | Singapore | Singapore |
+| Runtime | Docker; Java 21 | Node 22; SvelteKit adapter-node |
+| Branch | `main` | `main` |
+| Dockerfile / context | `./backend/Dockerfile` / `./backend` | Not applicable |
+| Build | Existing Dockerfile runs `mvn -B -ntp verify` | `cd frontend && npm ci --include=dev && npm run check && npm run build` |
+| Start | Existing Dockerfile entrypoint: `java -jar /app/app.jar` | `cd frontend && node build` |
+| Auto-deploy | Off | Off |
+| Bind address | `SERVER_ADDRESS=0.0.0.0`; `server.port=${PORT:8080}` | `HOST=0.0.0.0`; Render supplies `PORT` |
+| Additional environment | `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=50.0` | `NODE_VERSION=22`; URL variables below |
+
+Production frontend environment values:
+
+```text
+JAVA_API_URL=https://numerical-differentiation-java.onrender.com
+ORIGIN=https://numerical-differentiation-web.onrender.com
+```
+
+These are the actual HTTPS origins returned by Render, without trailing slashes. The existing SvelteKit server proxy forwards `/api` requests to Java; calculation payloads were verified to match the direct Java API.
+
+Connector limitations: its creation operation does not expose `rootDir`, `healthCheckPath`, or build filters. Frontend commands therefore enter `frontend` explicitly, preserving the existing build/start behavior. Render's live services currently use default **TCP health checks**; the public HTTP `/api/health` endpoints were independently tested successfully. The unchanged Blueprint retains `/api/health` and `/` as its intended HTTP health paths and the backend build filter. Setting platform HTTP health paths later requires the Dashboard or another supported configuration interface; this limitation does not prevent the verified public endpoints from working. [Health-check behavior](https://render.com/docs/health-checks).
+
+The backend image uses the existing multi-stage Maven/Temurin Dockerfile, a non-root Java process, and the existing test suite. No numerical formulas, OOP classes, UI components, or API behavior were rewritten.
+
+## Public verification results
+
+All checks below ran against the assigned public HTTPS URLs on 18 October 2026:
+
+| Check | Result |
 | --- | --- |
-| Java backend | Dockerfile `backend/Dockerfile`; build context `backend`; Maven `verify`; Java 21 runtime; non-root process; Free plan |
-| SvelteKit frontend | Root `frontend`; Node 22; `npm ci --include=dev && npm run check && npm run build`; start `node build`; Free plan |
-| Backend binding | `server.port=${PORT:8080}`; `server.address=${SERVER_ADDRESS:0.0.0.0}` |
-| Frontend binding | `HOST=0.0.0.0`; Render supplies `PORT` |
-| Frontend → Java | `JAVA_API_URL`: actual assigned backend HTTPS origin, without a trailing slash |
-| Frontend origin | `ORIGIN`: actual assigned frontend HTTPS origin |
-| Java heap | `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=50.0`; memory suitability still needs cloud verification |
+| Cloud Docker build and Maven verification | **67 tests passed**; zero failures, errors, or skips |
+| Cloud frontend diagnostics and build | **0 Svelte errors/warnings**; Vite production build succeeded |
+| Existing `scripts/verify-production.ps1` | **35 passed, 0 failed** |
+| Existing Playwright suite, public base URL | **4 passed**: two tests each on desktop Chrome and mobile emulation |
+| Additional public UI verification | **21 passed, 0 failed** |
+| Runtime error-level logs queried after final deployment | No entries returned during the verification window |
+| Desktop and 390px mobile screenshots | Captured and visually inspected; existing layout preserved |
 
-The Docker build runs the existing Java test suite instead of skipping tests. No numerical formulas, OOP classes, UI, or calculations were changed. Docker was not installed locally when this preparation started; the Docker image must not be reported as tested unless built successfully later. [Docker deployment](https://render.com/docs/docker), [SvelteKit Node deployment](https://render.com/docs/deploy-sveltekit), [port binding](https://render.com/docs/web-services), [blueprint reference](https://render.com/docs/blueprint-spec).
+Coverage included:
 
-## Publication/deployment procedure
+- Calculator; forward, backward, and central differences; all **18 supported formulas** and derivative orders **1–4** through the public proxy.
+- All **12 method/order combinations** through browser controls using polynomials with known derivatives.
+- Nine step-by-step solution entries, actual stencil samples, and **401 graph points**.
+- Interactive graph sample hover, zoom, pan, and reset; graph rendering after resizing.
+- Six first-derivative method-comparison rows and smallest-error highlighting.
+- Absolute/percentage relative errors; zero-reference undefined relative error; absent-reference behavior.
+- Step-size updates, domain validation, unsupported methods, malformed JSON, HTTP 400/404 handling.
+- Calculator, comparison, learning, and history routes; theme persistence and local-history restore/clear.
+- Mobile emulation and layout checks at **320px, 390px, and 768px**, with no horizontal page overflow or uncaught browser errors.
 
-1. Review the local Git file list and secret scan. Keep `.tools`, dependencies, compiled output, logs, local environment files, credentials, and the duplicate academic handoff archive out of Git.
-2. Authenticate GitHub CLI through official `gh auth login --web` if necessary. Never paste credentials into chat. A connected GitHub integration does not automatically authenticate a local CLI.
-3. Check the exact owner/name for conflicts. After the user approves visibility/publication, create the requested repository with the supplied description, connect `origin`, and push `main` normally. Never overwrite another repository, force-push, or replace remote history.
-4. Connect Render and verify account/workspace billing before resource creation. Obtain the user's first-public-deployment approval for the concrete two-Free-service configuration.
-5. Create the backend using the exact Docker configuration and Free compute plan. Wait for the build and `/api/health` success; record its actual HTTPS URL.
-6. Create/configure the frontend on Free with actual `JAVA_API_URL` and `ORIGIN`. Render-assigned URLs may need to be set after service creation and followed by a manual deploy. Do not assume a planned service name determines the final URL.
-7. Verify public HTTP and browser behavior before updating this document and README with real repository/site URLs. Do not label guessed URLs as live.
+Required example:
 
-If using the blueprint, remember that `sync: false` prompts for environment values during initial creation. Actual service URLs must be obtained and supplied correctly; manual creation of the two services is an alternative. No blueprint has been applied by preparing the file.
+```json
+{"expression":"x^3 + 2*x","x":2,"h":0.1,"derivativeOrder":1,"method":"CENTRAL","accuracy":"O_H2","referenceValue":14}
+```
 
-## Regression and public verification
+The direct Java API and frontend proxy returned **14.010000000000016**, displayed as **14.01**. Absolute error was **0.010000000000015774**, and percentage relative error was **0.0714285714286841%**. The response contained nine solution steps, two stencil samples, and 401 graph points.
 
-From the workspace root:
+Repeat the checked-in public verification from the workspace root:
+
+```powershell
+.\scripts\verify-production.ps1 `
+  -BaseUrl 'https://numerical-differentiation-web.onrender.com' `
+  -JavaUrl 'https://numerical-differentiation-java.onrender.com'
+
+. .\scripts\use-tools.ps1
+Set-Location frontend
+$env:PLAYWRIGHT_BASE_URL = 'https://numerical-differentiation-web.onrender.com'
+npm.cmd run test:e2e
+```
+
+The additional one-time UI script, its JSON results, HTTP output, and public screenshots are in ignored `.tools/public-verification/`. The checked-in browser suite remains unchanged.
+
+## Local preparation record
+
+Before cloud creation on the same date, the existing deployment preparation had already verified:
+
+- Maven `verify` and executable JAR packaging: **67 tests passed**.
+- Frontend diagnostics: **zero errors and zero warnings**.
+- The packaged Java JAR honored `PORT=18080` and `SERVER_ADDRESS=127.0.0.1`, returned `UP`, and returned the expected cubic result with nine solution steps. The temporary process was stopped afterward.
+- A 54-file Git candidate list under 1 MB was reviewed without credential-pattern matches. Runtimes, dependencies, compiled output, local environment files, credentials, and the academic handoff archive were excluded.
+- Portable Java 21, Maven 3.9.9, Node 22, and GitHub CLI were prepared under ignored `.tools`; GitHub CLI's download digest was checked. No credential values were requested or printed.
+
+Docker was unavailable locally during preparation. The existing Dockerfile has now been successfully built and tested by Render. This cloud verification supersedes the earlier preparation-only deployment status.
+
+For local checks:
 
 ```powershell
 . .\scripts\use-tools.ps1
@@ -62,40 +141,12 @@ npm.cmd run check
 npm.cmd run build
 ```
 
-After actual deployment, run the existing HTTP checks against the assigned URLs, allowing services to finish cold starting first:
+Alternative-hosting assessment remains unchanged: Render preserves the Java/Node architecture. Railway trials were not activated; Sites' Workers runtime cannot run this Spring Boot process, and no framework migration was performed.
 
-```powershell
-# Replace these variables with the actual verified service URLs.
-.\scripts\verify-production.ps1 -BaseUrl $publicFrontendUrl -JavaUrl $publicJavaUrl
-Set-Location frontend
-$env:PLAYWRIGHT_BASE_URL = $publicFrontendUrl
-npm.cmd run test:e2e
-```
+## Redeployment and Free-tier limitations
 
-The public cubic example must return approximately 14.01 with nine solution steps and graph samples. Confirm all three methods, orders 1–4, comparisons, references/errors, local history, theme, and mobile layout. Backend logs/direct API comparison must confirm that calculations reach the deployed Java engine. Prior successful localhost tests are not proof of cloud deployment.
+Commit and push reviewed changes to `main`, then manually deploy only the affected existing Render service. Auto-deploy remains disabled. Recheck the Hobby/no-card billing safeguard and `free` compute plan before configuration changes. Verify health and public behavior after each deployment. Documentation-only changes need no application rebuild.
 
-### Local checks completed during deployment preparation
+The two services share **750 Free instance hours per calendar month**; running both continuously for a whole month exceeds that shared allowance. Free services sleep after 15 minutes of inactivity and may take around a minute to wake. Allow both services to wake before testing; cold backend startup can temporarily interrupt a frontend proxy request. Free services cannot receive private-network traffic, so `JAVA_API_URL` uses the public HTTPS backend. [Free instance limits](https://render.com/docs/free).
 
-On 18 October 2026, after changing only the backend port/binding configuration:
-
-- Maven `verify` and executable JAR packaging succeeded: **67 tests passed, zero failures/errors/skips**.
-- Frontend diagnostics succeeded: **zero errors and zero warnings**. Frontend source was unchanged, so its previously verified production build/browser results are not represented as newly rerun cloud tests.
-- The packaged JAR started with `PORT=18080` and `SERVER_ADDRESS=127.0.0.1`; its health endpoint returned `UP` and its calculation endpoint returned **14.010000000000016**, with nine solution steps, for the cubic example. The temporary process was stopped afterward.
-- The reviewed Git candidate list contained 54 files under 1 MB, with no credential-pattern matches. Exclusions were checked for runtimes, dependencies, compiled outputs, local environment files, and the original report handoff archive.
-- GitHub CLI 2.102.0 was downloaded from its official release into ignored `.tools/gh-2.102.0` and verified against the official SHA-256 digest before use. `gh auth status` reported no authenticated GitHub host. No credential values were requested or printed.
-
-Docker is not installed locally, and the container build and Render blueprint have not been executed. No public integration test has been performed because no cloud service has been created.
-
-## Redeployment
-
-Commit and push reviewed source changes to `main`, then manually deploy only the affected Render service. Automatic deployment is disabled to conserve build usage. Recheck environment URLs and health after each deploy, run the HTTP/browser checks, and record actual results. Recheck $0 billing safeguards before any service/plan change. Never upgrade or attach payment information to keep a service running when free limits are reached.
-
-## Current blockers and limitations
-
-- GitHub CLI is now installed at `.tools/gh-2.102.0/bin/gh.exe` but is not authenticated; the connected GitHub tools can inspect the account but expose no repository-creation operation in this session. Complete the official login with `& '.\.tools\gh-2.102.0\bin\gh.exe' auth login --hostname github.com --git-protocol https --web`. Do not paste tokens/passwords into chat.
-- Render has been found as an available integration but is not confirmed installed/connected.
-- Account-specific zero-cost eligibility, lack of payment method, service capacity, actual public URLs, and public integration results remain unverified.
-- Public publication/deployment approvals remain outstanding.
-- Free-tier sleep, shared runtime quota, cold-start errors during proxy requests, and 512 MB instance memory can affect the demonstration. No always-on availability guarantee is made.
-
-Prepared files are not evidence of successful deployment. Total spending authorized: **$0**. No cloud resources or payments have been initiated.
+Memory is limited to 512 MB per Free instance. The initial Docker/Node builds and public tests passed within the selected configuration, but this is a hobby demonstration without an always-on or load-capacity guarantee. No paid resource is authorized to resolve future usage or memory limits.

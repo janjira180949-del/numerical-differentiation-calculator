@@ -2,7 +2,14 @@
 
 A Java-centered university OOP project with a Spring Boot numerical engine and a responsive SvelteKit/TypeScript interface. All expression evaluation, finite differences, graph samples, solution steps, comparisons, and error calculations run in Java. The browser renders results using KaTeX and Plotly.
 
-Cloud deployment is being prepared under a strict $0 budget. No public repository or website URL is verified yet. See [deployment status and configuration](docs/DEPLOYMENT.md).
+Live deployment verified on **18 October 2026**. Both services run on Render **Free ($0/month)** in a Hobby workspace with no card on file.
+
+- **Website:** https://numerical-differentiation-web.onrender.com
+- **Java backend:** https://numerical-differentiation-java.onrender.com
+- **Backend health:** https://numerical-differentiation-java.onrender.com/api/health
+- **Repository:** https://github.com/janjira180949-del/numerical-differentiation-calculator
+
+Verification passed: **67 cloud-build Java tests, 35 public HTTP checks, 4 desktop/mobile browser tests, and 21 additional public UI checks**. The required central-difference cubic example displays **14.01**. Free services sleep when idle and share monthly usage limits. See [verified deployment details, costs, and redeployment instructions](docs/DEPLOYMENT.md).
 
 ## Run in VS Code on Windows
 
@@ -107,7 +114,7 @@ $env:ORIGIN = 'http://localhost:3000'
 node build
 ```
 
-Open http://localhost:3000. The Node server proxies `/api` to Java; the frontend never needs direct cross-origin backend access. For deployment, run both processes behind HTTPS, set the public ORIGIN and internal JAVA_API_URL, add platform request limits/monitoring, and review current dependency advisories. This project is prepared for a local demonstration and has not been deployed to public hosting.
+Open http://localhost:3000. The Node server proxies `/api` to Java; the frontend never needs direct cross-origin backend access. The public Render deployment uses HTTPS for both services. Set `ORIGIN=https://numerical-differentiation-web.onrender.com` and `JAVA_API_URL=https://numerical-differentiation-java.onrender.com` on the frontend. Free backends require their public HTTPS address. Review platform usage limits and current dependency advisories when maintaining the deployment.
 
 ## Numerical limitations
 
