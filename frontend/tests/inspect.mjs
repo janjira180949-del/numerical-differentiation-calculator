@@ -1,0 +1,15 @@
+import {chromium} from '@playwright/test';
+const browser=await chromium.launch({channel:'chrome',headless:true});
+const page=await browser.newPage({viewport:{width:1440,height:1100}});
+page.on('pageerror',e=>console.log('PAGEERROR',e.message,e.stack));
+page.on('console',e=>{if(e.type()==='error')console.log('CONSOLE',e.text());});
+await page.goto('http://127.0.0.1:5173/');
+await page.locator('.plot .main-svg').first().waitFor();
+await page.screenshot({path:'../docs/desktop.png',fullPage:true});
+await page.getByRole('button',{name:'Toggle dark mode'}).click();
+await page.screenshot({path:'../docs/dark.png',fullPage:true});
+await page.setViewportSize({width:390,height:844});
+await page.getByRole('button',{name:'Toggle dark mode'}).click();
+await page.screenshot({path:'../docs/mobile.png',fullPage:true});
+console.log('Desktop, dark, and 390px mobile screenshots saved.');
+await browser.close();

@@ -1,0 +1,42 @@
+# Preparation only: do not apply until the user approves public deployment.
+# $0 requires a Free/Hobby workspace WITHOUT a payment method.
+# Free services can incur overages if a payment method is attached.
+services:
+  - type: web
+    name: numerical-differentiation-java
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeployTrigger: "off"
+    healthCheckPath: /api/health
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: SERVER_ADDRESS
+        value: 0.0.0.0
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=50.0
+
+  - type: web
+    name: numerical-differentiation-web
+    runtime: node
+    plan: free
+    branch: main
+    rootDir: frontend
+    buildCommand: npm ci --include=dev && npm run check && npm run build
+    startCommand: node build
+    autoDeployTrigger: "off"
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: HOST
+        value: 0.0.0.0
+      # Supply actual assigned HTTPS URLs; do not use guessed subdomains.
+      - key: JAVA_API_URL
+        sync: false
+      - key: ORIGIN
+        sync: false
